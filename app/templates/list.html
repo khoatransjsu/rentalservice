@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <h1>Shopping Cart</h1>
+  <ul class="list-unstyled">
+  {% for item in items %}
+    <li class="media" id="{{item.id}}">
+      <img src="/static/images/items/{{item.imgUrl}}" class="mr-3" alt="..." width="64" height="64">
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">{{item.name}}</h5>
+        <br>
+        <p> Price: ${{item.price}} </P>
+        <p> Rental Duration (weeks): {{item.duration}}</P>
+
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}

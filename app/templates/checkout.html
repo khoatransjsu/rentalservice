@@ -1,0 +1,38 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <h1>Checkout</h1>
+  <form action="{{ url_for('payment')}}" method="post">
+  <ul class="list-unstyled">
+  {% for item in items %}
+    <li class="media" id="{{item.id}}">
+      <img src="/static/images/items/{{item.imgUrl}}" class="mr-3" alt="..." width="64" height="64">
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">
+			{{item.name}} 
+			${{item.price}}
+		</h5>
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
+  Special Request:<br>
+  <textarea name="specialRequest" placeHolder="Special Request">New item only</textarea><br>
+  total cost: $<span id="total">{{total}}</span><br>
+    <script
+      src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+      data-key={{public_key}}
+	  data-email="{{email}}"
+      data-amount="{{amount}}"
+      data-name="Supply Rental Service"
+      data-description="Payment Due"
+      data-image="https://images.unsplash.com/photo-1514984879728-be0aff75a6e8?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=35dcb9bb6f3e097541dd732a99c44766&auto=format&fit=crop&w=1576&q=80"
+      data-locale="auto"
+      data-zip-code="true">
+    </script><br><br>
+  </form>
+</div>
+<script>
+
+</script>
+{% endblock %}

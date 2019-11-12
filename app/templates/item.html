@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron" >
+  <h1>{{item.name}}</h1>
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul>
+		{% for message in messages %}
+		<li><b>{{ message }}</b></li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+  <ul class="list-unstyled">
+    <li class="media">
+      <img src="/static/images/items/{{item.imgUrl}}" class="mr-3" alt="..." width="64" height="64">
+      <div class="media-body">
+        <p> Price: ${{item.price}} </P>
+        <p> Rental Duration (Per Day): {{item.duration}}</P>
+		<a class="btn btn-primary" href="/add/{{item.id}}">Add to Cart</a>
+		<hr>
+		<p>{{item.description}}</p>
+      </div>
+    </li>
+  </ul>
+  <a class="btn btn-primary" href="{{ url_for('index')}}">Browse</a>
+</div>
+{% endblock %}

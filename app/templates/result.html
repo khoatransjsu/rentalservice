@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron" >
+<h1>Users List</h1>
+	<table>
+	{% for item in users %}
+	<tr>
+		<td>{{item.id}}) {{item.firstname}} {{item.lastname}} | {{item.email}} | Student ID #{{item.studentid}} 
+		{% if item.email != 'admin' %}
+		<a href="/deluser/{{item.id}}">Delete</a>
+		{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
+	</table>
+
+	<hr>
+	<h1> Order History</h1>
+	<table>
+	{% for item in orders %}
+	<tr>
+		<td>{{item.id}}) Ordered By Person ID: #{{item.user_id}} | Items id: # {{item.item_id}} | Cost: ${{item.cost}} | Comment: <i>{{item.comment}}</i> | Time Stamp: {{item.timestamp}} <a href="/delorder/{{item.id}}">Delete</a></td>
+	</tr>
+	{% endfor %}
+	</table>
+
+	<hr>
+	<h1>Items List</h1>
+	<div id='updateInfo'>Hi</div>
+	<table id="itemsTable">
+	<tr>
+		<td>ID</td>
+		<td>Name</td>
+		<td>Quantity</td>
+		<td>Description</td>
+		<td>Rent Duration (day)</td>
+		<td>Price per Item</td>
+		<td>Image URL</td>
+		<td>Options</td>
+	</tr>
+	{% for item in items %}
+	<tr id="row{{item.id}}">
+		<td> <input type="text" id="id{{item.id}}" value="{{item.id}}" size="4"></td>
+		<td> <input type="text" id="name{{item.id}}" value="{{item.name}}"></td>
+		<td> <input type="text" id="inventory{{item.id}}" value="{{item.inventory}}"></td>
+		<td> <input type="text" id="description{{item.id}}" value="{{item.description}}"></td>
+		<td> <input type="text" id="duration{{item.id}}" value="{{item.duration}}"></td>
+		<td> <input type="text" id="price{{item.id}}" value="{{item.price}}"></td>
+		<td> <input type="text" id="imgUrl{{item.id}}" value="{{item.imgUrl}}"></td>
+		<td> 
+			<button onclick="updateItem({{item.id}})">Update</button>
+			<button onclick="deleteItem({{item.id}})">Delete</button>
+		</td>
+	</tr>
+	{% endfor %}
+	</table>
+	<button onclick="addRow()">Add new row</button>
+	<button onclick="undoDelete()">Undo Delete</button>
+	<hr>
+	<ul>
+	<li>Undo Delete will only works as long as you haven't refresh or leave the page. The data is saved in javascript array</li>
+	<li>After you add an item to database, you will need to manually save your image in '/static/images/items'</li>
+	</ul>
+</div>
+<script>
+types = ['id','name','inventory','description','duration','price','imgUrl']
+itemsCount = {{totalItems}}
+itemListData = {}
+itemDeleted = []
+addRow();
+
+function updateItem(id) {
+	$.each(types, function(index, value) {
+		itemListData[value] = $('#'+value+id).val();
+		$('#'+value+id).fadeOut().fadeIn();
+	});
+
+	$.ajax({
+		type: 'POST',
+		url: '/itemUpdate/'+id,
+		data: JSON.stringify(itemListData),
+		contentType: "application/json",
+		dataType: 'json',
+		complete: function(data) { 
+			console.log(data.responseText)
+			if (data !== null && data !== undefined) {
+				// Here "data" is whatever is returned from your POST
+				$("#updateInfo").text(data.responseText);
+			}
+		}
+	}); //*/
+}
+
+function deleteItem(id) {
+	if (isFieldsNotEmpty(id))
+		var cfm = confirm("Are you sure you want to delele id #"+id+"?\nIt will permanently delete from the database!");
+
+	if (cfm) {
+		$.ajax({
+			type: 'POST',
+			url: '/itemDelete/'+id,
+			dataType: 'text',
+			complete: function(data) { 
+				console.log(data.responseText)
+				if (data !== null && data !== undefined) {
+					// Here "data" is whatever is returned from your POST
+					$("#updateInfo").text(data.responseText);
+					$('#row'+id).fadeOut();
+					itemDeleted.push($('#row'+id))
+				}
+			}
+		}); //*/
+	}
+}
+
+function undoDelete() {
+	$lastItem  = itemDeleted.pop();
+	id = $lastItem[0].id.replace(/[^0-9\.]+/g, "");
+	updateItem(id)
+	$lastItem.fadeIn();
+}
+
+function isFieldsNotEmpty(id) {
+	fieldEmpty = 0;
+	$.each(types, function(index, value) {
+		if ($("#"+value+id).length > 0 && $('#'+value+id).val().length === 0) {
+			fieldEmpty += 1;
+		}
+	});
+
+	if (fieldEmpty == 0)
+		return true;
+	else if (fieldEmpty == 6) {
+		$('#row'+id).fadeOut();
+		return false;
+	}else
+		return false;
+}
+
+function addRow() {
+	itemsCount++;
+	nodeTR = document.createElement('tr');
+	nodeTR.id = "row"+itemsCount;
+	$.each(types, function(index, value) {
+		nodeTD = document.createElement('td');
+		if (index != 0)
+			nodeTD.innerHTML = '<input type="" id="'+value+itemsCount+'" value="">';
+		nodeTR.appendChild(nodeTD);
+	});
+	nodeTD = document.createElement('td');
+	nodeTD.innerHTML = '<button onclick="updateItem('+itemsCount+')">Update</button> <button onclick="deleteItem('+itemsCount+')">Delete</button>';
+	nodeTR.appendChild(nodeTD);
+	$("#itemsTable").append(nodeTR);
+}
+</script>
+{% endblock %}

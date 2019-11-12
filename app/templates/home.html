@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron" >
+  <h1>Welcome to SJSU Online Rental Services</h1>
+    {% if current_user.is_anonymous %}
+    <h3>We supply a wide range variety of items that you can select with reasonable price.</h3>
+	<p>Login or register to start using the rental service!</p>
+	{% else %}
+	<h3>Welcome back {{ current_user.firstname }}, what item would you like to rent today?</h3>
+	{% endif %}
+
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul>
+		{% for message in messages %}
+		<li>{{ message }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+
+<!--<img src="../static/background.jpg" alt="">-->
+  <ul class="list-unstyled">
+  {% for item in items %}
+    <li class="media" id="{{item.id}}">
+      <img src="/static/images/items/{{item.imgUrl}}" class="mr-3" alt="..." width="64" height="64">
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">{{item.name}}</h5>
+        <br>
+        <p> Price: ${{item.price}} </P>
+        <p> Rental Duration (Per Day): {{item.duration}}</P>
+		
+	  <hr class="hr">
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+ 
+<script>
+$('li').on('click', function() {
+	window.location.href="/item/"+$(this).attr('id');
+})
+</script>
+{% endblock %}

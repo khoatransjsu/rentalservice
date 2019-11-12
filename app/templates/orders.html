@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron" >
+  <h1>Orders History</h1>
+  <ul class="list-unstyled">
+  {% if orders|length %}
+  {% for item in orders %}
+    <li class="media">
+		Invoice #: {{item.invoice_no}}) Cost: ${{item.cost}} | {{item.timestamp}}
+		<ol>{% for itemName, dueDate, dueDays in item.items %}
+			<li>{{itemName}} due in <u>{{dueDays}}</u> day(s) on: <b>{{dueDate}}</b></li>
+		{% endfor %}</ol>
+	</li>
+  {% endfor %}
+  {% else %}
+  <li class="media">You have no previous order.</li>
+  {% endif %}
+  </ul><br>
+  <a class="btn btn-primary" href="{{ url_for('index')}}">Browse</a>
+</div>
+{% endblock %}

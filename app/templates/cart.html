@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <h1>Shopping Cart</h1>
+  <form action = "{{ url_for('checkout')}}" method="post">
+  <ul class="list-unstyled">
+  {% if items|length %}
+  {% for item in items %}
+    <li class="media" id="{{item.id}}">
+	  <input type="checkbox" name="{{item.id}}" value="{{item.price}}" checked>
+      <img src="/static/images/items/{{item.imgUrl}}" class="mr-3" alt="..." width="64" height="64">
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">
+			{{item.name}} 
+			${{item.price}}
+		</h5>
+      </div>
+    </li>
+  {% endfor %}
+  {% else %}
+	<li class="media">Your Shopping Cart is empty.</li>
+  {% endif %}
+  </ul>
+   {% if items|length %}
+	total cost: $<span id="total">{{total}}</span><br>
+	{% if itemCount %}
+    <button class="btn btn-primary">Checkout</button>
+	{% endif %}
+  {% else %}
+	<a class="btn btn-primary" href="{{ url_for('index')}}">Browse</a>
+  {% endif %}
+  <form>
+</div>
+<script>
+$('input[type=checkbox]').on('change', function() {
+	getTotal();
+})
+
+function getTotal() {
+	items = [];
+	total = 0;
+	// get selected items
+	$('input[type=checkbox]').each(function() {
+		if (this.checked) {
+			items.push(this.name);
+			total += parseFloat(this.value)
+		}
+	})
+
+	// update cart in server and retrieve total
+	$.ajax({
+		type: 'POST',
+		url: '/cartUpdate',
+		data: JSON.stringify(items),
+		contentType: "application/json",
+		dataType: 'json',
+		success: function(data) { 
+			if (data !== null && data !== undefined) {
+				console.log(data);
+
+				// Here "data" is whatever is returned from your POST
+				$("#total").text(data);
+			}
+		}
+	});
+}
+</script>
+{% endblock %}
